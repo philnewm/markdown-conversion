@@ -1,0 +1,48 @@
+---
+
+name: Convert markdown files
+description: Convert certain elemnts of the provided file to fit the requirements for certain blog page providers
+
+branding:
+  icon: arrow-left-circle
+  color: green
+
+inputs:
+  markdown_file_path:
+    description: 'The path to the markdown file to convert'
+    required: true
+  code:
+    description: 'Convert code blocks to fit the requirements of the blog provider'
+    required: false
+    default: "false"
+  code_files:
+    description: 'The location of the code files to insert into the markdown file'
+    required: false
+  admonitions:
+    description: 'Convert admonitions to fit the requirements of the blog provider'
+    required: false
+    default: "false"
+  target_path:
+    description: 'The path to save the converted file'
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - name: Copy to temp file
+      shell: bash
+      run: |
+        cp ${{ inputs.markdown_file_path }} ${{ inputs.target_path }}
+
+    - name: Replace code references
+      shell: bash
+      run: |
+        python markdown-conversion.py insert_code_references ${{ inputs.target_path }} ${{ inputs.code_files }}
+
+    - name: Update admonitions
+      shell: bash
+      run: |
+        python markdown-conversion.py replace_admonitions ${{ inputs.target_path }}
+
+...

@@ -1,0 +1,58 @@
+name: Unit Testing
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - 'TODO.md'
+      - '**/*.md'
+      - .gitignore
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: "main"
+          fetch-depth: 0
+
+      - name: Run Pytest
+        run: |
+          pip install pytest pytest-cov
+          pytest
+        working-directory: ${{ github.workspace }}/tests
+
+  integration-tests:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+
+    env:
+      FILE_PATH: "path/to/file.md"
+
+    steps:
+      - name: Create test file
+        run: |
+          curl markdown file to ${{ env.FILE_PATH }}
+
+      - name: Run action
+        uses: philnewm/markdown-conversion
+        with:
+          markdown_file_path: ${{ env.FILE_PATH }}
+          code: true
+          admonitions: true
+          target_path: "path/to/output.md"
+
+      - name: Compare to reference
+        run:
+          if diff -q "path/to/output.md" "path/to/reference.md"; then
+            echo "Files are the same"
+          else
+            echo "Files are different"
+            exit 1
+          fi
+
