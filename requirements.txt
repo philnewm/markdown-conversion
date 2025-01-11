@@ -1,2 +1,3 @@
 markdown-it-py==3.0.0
 click==8.1.8
+yaml==6.0.2
