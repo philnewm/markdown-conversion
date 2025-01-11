@@ -58,8 +58,9 @@ jobs:
         uses: philnewm/markdown-conversion@main
         with:
           markdown_file_path: ${{ env.FILE_PATH }}
-          code: true
           admonitions: true
+          code: true
+          code_source: "."
           target_path: "path/to/output.md"
 
       - name: Test output

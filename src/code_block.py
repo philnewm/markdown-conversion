@@ -1,4 +1,6 @@
 import logging
+import os
+import requests
 import yaml
 
 from markdown_it.token import Token
@@ -84,6 +86,28 @@ def get_reference_values(token: Token) -> CodeReferenceMeta:
     )
 
 
+def get_file(source: str, output_dir: str) -> None:
+
+    file_name: str = os.path.basename(source)
+    target_path: str = os.path.join(output_dir, file_name)
+
+    try:
+        os.makedirs(output_dir, exist_ok=True)
+
+        response: requests.Response = requests.get(source)
+        response.raise_for_status()
+
+        with open(target_path, "w", encoding="utf-8") as file:
+            file.write(response.text)
+
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred during the download: {e}")\
+
+    except OSError as e:
+        print(f"An error occurred with the file system: {e}")
+
+
+
 def map_reference_to_source(
     workflow_path: Path, tokens: list[Token], step_to_code_map: dict[str, str]
 ) -> list[CodeMap]:
@@ -99,11 +123,15 @@ def map_reference_to_source(
 
     code_map_list: list[CodeMap] = []
 
-    # ToDo Implement blog dataclass to hold information like ttitle, tags and so on
+    # ToDo Implement blog dataclass to hold information like title, tags and so on
 
     for token in tokens:
         if token.type == "fence" and token.info == "reference":
             ref_meta: CodeReferenceMeta = get_reference_values(token=token)
+            url: str = "https://raw.githubusercontent.com/philnewm/blog-artickes/drafts/"
+            get_file(
+                source=os.path.join(url, str(ref_meta.file_path)), output_dir="temp",
+                )
             source_code: str = file.read_file(file_path=str(ref_meta.file_path))
 
             if ref_meta.file_path.name in workflow_paths:
