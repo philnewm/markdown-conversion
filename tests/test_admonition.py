@@ -1,6 +1,6 @@
 import pytest
 
-from src.lib import admonition
+from src import admonition
 
 
 @pytest.fixture

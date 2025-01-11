@@ -3,7 +3,7 @@ import yaml
 
 from markdown_it.token import Token
 from pathlib import Path
-from src.lib import file
+from src import file
 from typing import Any, NamedTuple
 
 

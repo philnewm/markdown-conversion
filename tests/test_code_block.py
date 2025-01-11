@@ -4,7 +4,7 @@ from typing import NamedTuple
 import pytest
 import yaml
 
-from src.lib import code_block
+from src import code_block
 
 
 @pytest.fixture
@@ -33,7 +33,7 @@ def code_ref_meta_workflow(tmp_path: Path) -> code_block.CodeReferenceMeta:
 
 def test_map_step_name_to_code(test_workflow: dict[str, dict[str, str]]) -> None:
     """
-    Given a test dictionary resambling a github workflow script.
+    Given a test dictionary resembling a github workflow script.
     When running the map conversion
     Than provide the expected dictionary
     """
