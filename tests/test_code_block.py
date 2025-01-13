@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import NamedTuple
 
+import os
 import pytest
 import yaml
 
@@ -105,3 +106,31 @@ def test_get_reference_values(test_token: TestToken) -> None:
     assert expected_result["file"] == result.file_path.as_posix()
     assert expected_result["title"] == result.title
     assert expected_result["language"] == result.language
+
+
+def test_download_file_from(tmp_path: Path) -> None:
+    """
+    Given a file path
+    When running download_file_from
+    Than expect the file to be downloaded
+    """
+
+    server_dir: Path = Path(tmp_path) / "server"
+    expected_content = "This is a test file."
+    file_path = "testfile.txt"
+    os.makedirs(server_dir, exist_ok=True)
+
+    test_file_path: Path = server_dir / file_path
+    test_file_path.write_text(expected_content)
+
+    url: str = os.path.join(f"file://{server_dir}", file_path)
+    destination_dir: Path = Path(tmp_path) / "downloads"
+
+    code_block.download_file_from(source=url, output=str(destination_dir))
+
+    saved_file: Path = destination_dir.joinpath(file_path)
+
+    print(f"Saved file: {saved_file}")
+
+    assert saved_file.exists()
+    assert expected_content == saved_file.read_text()

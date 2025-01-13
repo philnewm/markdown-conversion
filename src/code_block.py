@@ -24,6 +24,7 @@ class CodeReferenceMeta(NamedTuple):
     file_path: Path
     title: str
     language: str
+    source: str
 
 
 def map_step_name_to_code(
@@ -83,21 +84,24 @@ def get_reference_values(token: Token) -> CodeReferenceMeta:
         file_path=Path(reference_dict["file"]),
         title=reference_dict["title"],
         language=reference_dict["language"],
+        source = (
+                f"{token.markup}{token.info}\n{token.content}{token.markup}"
+            ),
     )
 
 
-def get_file(source: str, output_dir: str) -> None:
+def download_file_from(base_url: Path, source: Path, output: Path = Path("local_tmp")) -> Path:
 
-    file_name: str = os.path.basename(source)
-    target_path: str = os.path.join(output_dir, file_name)
+    source_file: Path = base_url / str(source)
+    output_file: Path = output / source.name
 
     try:
-        os.makedirs(output_dir, exist_ok=True)
+        output_file.mkdir(parents=True, exist_ok=True)
 
-        response: requests.Response = requests.get(source)
+        response: requests.Response = requests.get(str(source_file))
         response.raise_for_status()
 
-        with open(target_path, "w", encoding="utf-8") as file:
+        with open(str(output), "w", encoding="utf-8") as file:
             file.write(response.text)
 
     except requests.exceptions.RequestException as e:
@@ -106,10 +110,34 @@ def get_file(source: str, output_dir: str) -> None:
     except OSError as e:
         print(f"An error occurred with the file system: {e}")
 
+    return output_file
+
+
+def format_source_code(token, ref_meta, source_code) -> tuple[str, str]:
+    source_code_formatted: str = f"```{ref_meta.language}\n{source_code}```"
+    code_reference: str = (
+                f"{token.markup}{token.info}\n{token.content}{token.markup}"
+            )
+
+    return source_code_formatted, code_reference
+
+
+def get_code_refs(tokens: list[Token]) -> list[CodeReferenceMeta]:
+
+    ref_list: list[CodeReferenceMeta] = []
+
+    for token in tokens:
+        if token.type == "fence" and token.info == "reference":
+
+            ref_meta: CodeReferenceMeta = get_reference_values(token=token)
+            ref_list.append(ref_meta)
+
+    return ref_list
+
 
 
 def map_reference_to_source(
-    workflow_path: Path, tokens: list[Token], step_to_code_map: dict[str, str]
+    step_to_code_map: dict[str, str]
 ) -> list[CodeMap]:
     """Map the code references to the source code they point to.
 
@@ -125,26 +153,23 @@ def map_reference_to_source(
 
     # ToDo Implement blog dataclass to hold information like title, tags and so on
 
-    for token in tokens:
-        if token.type == "fence" and token.info == "reference":
-            ref_meta: CodeReferenceMeta = get_reference_values(token=token)
-            url: str = "https://raw.githubusercontent.com/philnewm/blog-artickes/drafts/"
-            get_file(
-                source=os.path.join(url, str(ref_meta.file_path)), output_dir="temp",
-                )
-            source_code: str = file.read_file(file_path=str(ref_meta.file_path))
+    base_url: Path = Path("https://raw.githubusercontent.com/philnewm/blog-articles/drafts/")
 
-            if ref_meta.file_path.name in workflow_paths:
+            output_file: Path = download_file_from(
+                base_url=base_url,
+                source=ref_meta.file_path,
+                )
+            source_code: str = output_file.read_text()
+
+            # Warning assumes yaml-source files to be GitHub-Workflows
+            if ref_meta.file_path.name.endswith(".yml"):
                 snippet_name: str = parse_workflow_code(
                     reference_meta=ref_meta,
                     jobs=step_to_code_map.keys()
                 )
                 source_code = step_to_code_map[snippet_name]
 
-            source_code_formatted: str = f"```{ref_meta.language}\n{source_code}```"
-            code_reference: str = (
-                f"{token.markup}{token.info}\n{token.content}{token.markup}"
-            )
+            source_code_formatted, code_reference = format_source_code(token, ref_meta, source_code)
 
             code_map_list.append(
                 CodeMap(reference=code_reference, source_code=source_code_formatted)
