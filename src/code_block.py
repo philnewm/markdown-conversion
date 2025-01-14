@@ -1,12 +1,10 @@
 import logging
-import os
 import requests
 import yaml
 
 from markdown_it.token import Token
 from pathlib import Path
-from src import file
-from typing import Any, NamedTuple
+from typing import NamedTuple
 
 
 log = logging.Logger(__file__)
@@ -25,6 +23,8 @@ class CodeReferenceMeta(NamedTuple):
     title: str
     language: str
     source: str
+    markup: str
+
 
 
 def map_step_name_to_code(
@@ -84,9 +84,10 @@ def get_reference_values(token: Token) -> CodeReferenceMeta:
         file_path=Path(reference_dict["file"]),
         title=reference_dict["title"],
         language=reference_dict["language"],
-        source = (
+        source=(
                 f"{token.markup}{token.info}\n{token.content}{token.markup}"
             ),
+        markup=token.markup,
     )
 
 
@@ -113,10 +114,10 @@ def download_file_from(base_url: Path, source: Path, output: Path = Path("local_
     return output_file
 
 
-def format_source_code(token, ref_meta, source_code) -> tuple[str, str]:
+def format_source_code(ref_meta: CodeReferenceMeta, source_code: str) -> tuple[str, str]:
     source_code_formatted: str = f"```{ref_meta.language}\n{source_code}```"
     code_reference: str = (
-                f"{token.markup}{token.info}\n{token.content}{token.markup}"
+                f"{ref_meta.markup}{ref_meta.language}\n{ref_meta.source}{ref_meta.markup}"
             )
 
     return source_code_formatted, code_reference
@@ -135,15 +136,25 @@ def get_code_refs(tokens: list[Token]) -> list[CodeReferenceMeta]:
     return ref_list
 
 
+def step_to_code_maps(files: set[Path], path: Path) -> dict[str, dict[str, str]]:
 
-def map_reference_to_source(
-    step_to_code_map: dict[str, str]
-) -> list[CodeMap]:
+    step_to_code_maps: dict[str, dict[str, str]] = {}
+
+    for file in files:
+        step_to_code_map: dict[str, str] = map_step_name_to_code(
+            gh_workflow=yaml.safe_load(Path(path / file).read_text()),
+            job_name="molecule-setup-ci",
+        )
+
+        step_to_code_maps[str(file)] = step_to_code_map
+
+    return step_to_code_maps
+
+def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, step_to_code_maps: dict[str, dict[str, str]]) -> list[CodeMap]:
     """Map the code references to the source code they point to.
 
     Args:
-        workflow_path (Path): Path to GitHub Action workflow
-        tokens (list[Tokens]): Token list from parsed markdown file
+        code_refs (list[CodeReferenceMeta])): Code reference found in the markdown file
 
     Returns:
         list[CodeMap]: List of code mappings
@@ -151,29 +162,24 @@ def map_reference_to_source(
 
     code_map_list: list[CodeMap] = []
 
+    # create source ref to source code mapping
+
     # ToDo Implement blog dataclass to hold information like title, tags and so on
 
-    base_url: Path = Path("https://raw.githubusercontent.com/philnewm/blog-articles/drafts/")
+    for code_ref in code_refs:
+        output_file: Path = path / code_ref.file_path.name
 
-            output_file: Path = download_file_from(
-                base_url=base_url,
-                source=ref_meta.file_path,
-                )
-            source_code: str = output_file.read_text()
+        # Warning assumes yaml-source files to be GitHub-Workflows
+        if code_ref.file_path.name.endswith(".yml"):
+            pass
 
-            # Warning assumes yaml-source files to be GitHub-Workflows
-            if ref_meta.file_path.name.endswith(".yml"):
-                snippet_name: str = parse_workflow_code(
-                    reference_meta=ref_meta,
-                    jobs=step_to_code_map.keys()
-                )
-                source_code = step_to_code_map[snippet_name]
+        source_code: str = output_file.read_text()
 
-            source_code_formatted, code_reference = format_source_code(token, ref_meta, source_code)
+        source_code_formatted, code_reference = format_source_code(ref_meta=code_ref, source_code=source_code)
 
-            code_map_list.append(
-                CodeMap(reference=code_reference, source_code=source_code_formatted)
-            )
+        code_map_list.append(
+            CodeMap(reference=code_reference, source_code=source_code_formatted)
+        )
 
     return code_map_list
 

@@ -22,7 +22,7 @@ def test_admonition_recognition(
     """
     Given a admonition examples from obsidian to dev.to
     When utilizing an admonition dataclass
-    Than replace as expected
+    Then replace as expected
     """
 
     expected_result: str = admonitions_devto
