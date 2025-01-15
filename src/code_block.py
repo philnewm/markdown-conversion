@@ -28,7 +28,7 @@ class CodeReferenceMeta(NamedTuple):
 
 
 def map_step_name_to_code(
-    gh_workflow: dict[str, dict[str, str]], job_name: str
+    gh_workflow: dict[str, dict[str, str]]
 ) -> dict[str, str]:
     """Convert a Github Actions job dictionary to a step to code dictionary.
 
@@ -36,13 +36,19 @@ def map_step_name_to_code(
 
     Args:
         gh_workflow (dict[str, dict]): Dictionary of Yaml content of a Github Actions workflow
-        job_name (str): Job name to use as source
 
     Returns:
         dict[str, str]: Step-name as key and Step run-code as value
     """
 
-    steps: dict[str, str] = gh_workflow["jobs"][job_name]["steps"]
+    if "jobs" not in gh_workflow:
+        raise ValueError("Couldn't find jobs in the workflow file")
+    
+    if len(gh_workflow["jobs"]) > 1:
+        raise ValueError("Multiple jobs in the workflow file")
+
+    first_key: str = next(iter(yaml_content["jobs"].keys()))
+    steps: dict[str, str] = gh_workflow["jobs"][first_key]["steps"]
 
     return {step["name"]: step.get("run") for step in steps}
 
@@ -93,6 +99,8 @@ def get_reference_values(token: Token) -> CodeReferenceMeta:
 
 def download_file_from(base_url: Path, source: Path, output: Path = Path("local_tmp")) -> Path:
 
+    # TODO research how to download all files at once
+
     source_file: Path = base_url / str(source)
     output_file: Path = output / source.name
 
@@ -136,21 +144,20 @@ def get_code_refs(tokens: list[Token]) -> list[CodeReferenceMeta]:
     return ref_list
 
 
-def step_to_code_maps(files: set[Path], path: Path) -> dict[str, dict[str, str]]:
+def get_workflow_code(files: list[Path], path: Path) -> dict[str, str]:
 
-    step_to_code_maps: dict[str, dict[str, str]] = {}
+    combined_maps: dict[str, str] = {}
 
     for file in files:
         step_to_code_map: dict[str, str] = map_step_name_to_code(
-            gh_workflow=yaml.safe_load(Path(path / file).read_text()),
-            job_name="molecule-setup-ci",
+            gh_workflow=yaml.safe_load(Path(path / file).read_text())
         )
 
-        step_to_code_maps[str(file)] = step_to_code_map
+        combined_maps.update(step_to_code_map)
 
-    return step_to_code_maps
+    return combined_maps
 
-def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, step_to_code_maps: dict[str, dict[str, str]]) -> list[CodeMap]:
+def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, step_to_code_maps: dict[str, str]) -> list[CodeMap]:
     """Map the code references to the source code they point to.
 
     Args:
@@ -171,7 +178,15 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, step
 
         # Warning assumes yaml-source files to be GitHub-Workflows
         if code_ref.file_path.name.endswith(".yml"):
-            pass
+            source_code: str = step_to_code_maps[code_ref.title]
+            source_code_formatted, code_reference = format_source_code(ref_meta=code_ref, source_code=source_code)
+            code_map_list.append(
+                CodeMap(
+                reference=code_reference,
+                source_code=source_code_formatted,
+                )
+            )
+            continue
 
         source_code: str = output_file.read_text()
 
