@@ -4,6 +4,7 @@ import yaml
 
 from markdown_it.token import Token
 from pathlib import Path
+from urllib.parse import urljoin, urlunparse
 from typing import NamedTuple
 
 
@@ -47,6 +48,7 @@ def map_step_name_to_code(
     if len(gh_workflow["jobs"]) > 1:
         raise ValueError("Multiple jobs in the workflow file")
 
+    yaml_content: dict[str, dict[str, str]] = gh_workflow
     first_key: str = next(iter(yaml_content["jobs"].keys()))
     steps: dict[str, str] = gh_workflow["jobs"][first_key]["steps"]
 
@@ -97,20 +99,20 @@ def get_reference_values(token: Token) -> CodeReferenceMeta:
     )
 
 
-def download_file_from(base_url: Path, source: Path, output: Path = Path("local_tmp")) -> Path:
+def download_file_from(domain: str, source: str, output_file: Path = Path("local_tmp")) -> Path:
 
     # TODO research how to download all files at once
 
-    source_file: Path = base_url / str(source)
-    output_file: Path = output / source.name
+    url_prefix: str = urlunparse(("https", domain, "", "", "", ""))
+    source_file: str = urljoin(f"{url_prefix}/", source.lstrip("/"))
 
     try:
-        output_file.mkdir(parents=True, exist_ok=True)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
 
-        response: requests.Response = requests.get(str(source_file))
+        response: requests.Response = requests.get(source_file)
         response.raise_for_status()
 
-        with open(str(output), "w", encoding="utf-8") as file:
+        with open(str(output_file), "w", encoding="utf-8") as file:
             file.write(response.text)
 
     except requests.exceptions.RequestException as e:
@@ -174,10 +176,9 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, step
     # ToDo Implement blog dataclass to hold information like title, tags and so on
 
     for code_ref in code_refs:
-        output_file: Path = path / code_ref.file_path.name
+        output_file: Path = path / code_ref.file_path
 
-        # Warning assumes yaml-source files to be GitHub-Workflows
-        if code_ref.file_path.name.endswith(".yml"):
+        if code_ref.file_path.parent.name == "workflows":
             source_code: str = step_to_code_maps[code_ref.title]
             source_code_formatted, code_reference = format_source_code(ref_meta=code_ref, source_code=source_code)
             code_map_list.append(
