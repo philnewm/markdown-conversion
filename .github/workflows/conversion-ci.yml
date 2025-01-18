@@ -87,7 +87,7 @@ jobs:
 
       - name: Test output
         run:
-          if diff -q ${{ env.OUTPUT_ADMONITIONS }} ${{ env.REFERENCE_FILE }}; then
+          if diff -q ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }} ${{ github.workspace }}/${{ env.REFERENCE_FILE }}; then
             echo "Files are the same"
           else
             echo "Files are different"
