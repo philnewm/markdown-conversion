@@ -40,6 +40,13 @@ runs:
       with:
         python-version: 3.12
 
+    - name: Debug File Paths
+      shell: bash
+      run: |
+        echo "Current working directory: $(pwd)"
+        echo "Files:"
+        ls -R
+
     - name: Get code files
       if: inputs.code
       shell: bash
