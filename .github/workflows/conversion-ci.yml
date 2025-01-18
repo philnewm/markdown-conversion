@@ -1,6 +1,6 @@
 ---
 
-name: Unit Testing
+name: CI
 
 on:
   push:
@@ -55,6 +55,10 @@ jobs:
 
     steps:
       # TODO create test files from code
+      - name: Get reference file
+        run: |
+          curl ${{ env.URL }}/${{ env.REFERENCE_FILE }} -o ${{ env.REFERENCE_FILE }}
+
       - name: Run action
         uses: philnewm/markdown-conversion@main
         with:
@@ -64,10 +68,6 @@ jobs:
           output_file_code: ${{ env.OUTPUT_CODE }}
           admonitions: true
           output_file_admonitions: ${{ env.OUTPUT_ADMONITIONS }}
-
-      - name: Get reference file
-        run: |
-          curl ${{ env.URL }}/${{ env.REFERENCE_FILE }} -o ${{ env.REFERENCE_FILE }}
 
       - name: Test output
         run:
