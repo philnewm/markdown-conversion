@@ -6,12 +6,10 @@ from markdown_it.token import Token
 from pathlib import Path
 from urllib.parse import urljoin, urlunparse
 from typing import NamedTuple
+from src import constants
 
 
 log = logging.Logger(__file__)
-workflow_paths: list[str] = [
-    "run_code_snippets.yml",
-]
 
 
 class CodeMap(NamedTuple):
@@ -124,13 +122,8 @@ def download_file_from(domain: str, source: str, output_file: Path = Path("local
     return output_file
 
 
-def format_source_code(ref_meta: CodeReferenceMeta, source_code: str) -> tuple[str, str]:
-    source_code_formatted: str = f"```{ref_meta.language}\n{source_code}```"
-    code_reference: str = (
-                f"{ref_meta.markup}{ref_meta.language}\n{ref_meta.source}{ref_meta.markup}"
-            )
-
-    return source_code_formatted, code_reference
+def format_source_code(ref_meta: CodeReferenceMeta, source_code: str) -> str:
+    return f"```{ref_meta.language}\n{source_code}```"
 
 
 def get_code_refs(tokens: list[Token]) -> list[CodeReferenceMeta]:
@@ -138,7 +131,7 @@ def get_code_refs(tokens: list[Token]) -> list[CodeReferenceMeta]:
     ref_list: list[CodeReferenceMeta] = []
 
     for token in tokens:
-        if token.type == "fence" and token.info == "reference":
+        if token.type == constants.code_block and token.info == constants.code_info:
 
             ref_meta: CodeReferenceMeta = get_reference_values(token=token)
             ref_list.append(ref_meta)
@@ -164,6 +157,7 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, step
 
     Args:
         code_refs (list[CodeReferenceMeta])): Code reference found in the markdown file
+        step_to_code_maps (dict[str, str]): Workflow step name to code mapping
 
     Returns:
         list[CodeMap]: List of code mappings
@@ -171,30 +165,27 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, step
 
     code_map_list: list[CodeMap] = []
 
-    # create source ref to source code mapping
-
     # ToDo Implement blog dataclass to hold information like title, tags and so on
 
     for code_ref in code_refs:
         output_file: Path = path / code_ref.file_path
 
-        if code_ref.file_path.parent.name == "workflows":
+        if code_ref.file_path.parent.name == constants.workflow_directory:
             source_code: str = step_to_code_maps[code_ref.title]
-            source_code_formatted, code_reference = format_source_code(ref_meta=code_ref, source_code=source_code)
+            source_code_formatted: str = f"```{code_ref.language}\n{source_code}```"
             code_map_list.append(
                 CodeMap(
-                reference=code_reference,
+                reference=code_ref.source,
                 source_code=source_code_formatted,
                 )
             )
             continue
 
-        source_code: str = output_file.read_text()
-
-        source_code_formatted, code_reference = format_source_code(ref_meta=code_ref, source_code=source_code)
+        source_code = output_file.read_text()
+        source_code_formatted = f"```{code_ref.language}\n{source_code}```"
 
         code_map_list.append(
-            CodeMap(reference=code_reference, source_code=source_code_formatted)
+            CodeMap(reference=code_ref.source, source_code=source_code_formatted)
         )
 
     return code_map_list

@@ -1,4 +1,4 @@
-from src import code_block, admonition
+from src import code_block, admonition, constants
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from pathlib import Path
@@ -15,12 +15,10 @@ def cli() -> None:
 @click.argument("domain_url", type=click.STRING)
 @click.argument("input_file", type=click.STRING)
 def download_files(domain_url: str, input_file: str) -> None:
-    download_dir: Path = Path("local_tmp")
-
     blog_file: Path = code_block.download_file_from(
         domain=domain_url,
         source=input_file,
-        output_file=download_dir / Path(input_file),
+        output_file=constants.download_dir / Path(input_file),
         )
 
     md = MarkdownIt()
@@ -33,7 +31,7 @@ def download_files(domain_url: str, input_file: str) -> None:
         code_block.download_file_from(
             domain=domain_url,
             source=str(file),
-            output_file=Path(download_dir / file),
+            output_file=Path(constants.download_dir / file),
             )
 
 
@@ -47,32 +45,30 @@ def insert_code_references(
 
     # Define statics
     export_file: Path = Path(output_file)
-    download_dir: Path = Path("local_tmp")
 
     md = MarkdownIt()
-    md_content: str = Path(download_dir / input_file.lstrip("/")).read_text()
+    md_content: str = Path(constants.download_dir / input_file.lstrip("/")).read_text()
     tokens: list[Token] = md.parse(md_content)
 
     # Run logic
     code_refs: list[code_block.CodeReferenceMeta] = code_block.get_code_refs(tokens=tokens)
     code_files: set[Path] = set(code_ref.file_path for code_ref in code_refs)
-    workflow_files: list[Path] = [file for file in code_files if file.parent.name == "workflows"]
+    workflow_files: list[Path] = [file for file in code_files if file.parent.name == constants.workflow_directory]
     
     workflow_code: dict[str, str] = code_block.get_workflow_code(
         files=workflow_files,
-        path=download_dir,
+        path=constants.download_dir,
         )
     
     code_map_list: list[code_block.CodeMap] = code_block.map_reference_to_source(
         code_refs=code_refs,
-        path=download_dir,
+        path=constants.download_dir,
         step_to_code_maps=workflow_code,
         )
 
-    export_content: str = code_block.update_text(md_content, code_map_list)
-    export_file.write_text(export_content)
-
-    click.echo(code_map_list)
+    export_text: str = code_block.update_text(md_content, code_map_list)
+    export_file.parent.mkdir(parents=True, exist_ok=True)
+    export_file.write_text(export_text)
 
 
 @cli.command()

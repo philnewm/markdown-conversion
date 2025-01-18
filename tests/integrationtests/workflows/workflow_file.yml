@@ -1,0 +1,47 @@
+---
+
+name: example-workflow
+
+on:
+  push: 
+    branches: 
+      - "develop"
+      - "main"
+    paths-ignore:
+      - 'README.md'
+      - .gitignore
+
+permissions:
+  contents: read
+  
+env:
+  RES_PATH: "resources"
+  BRANCH_REF: "main"
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  job-name:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get install python3.12-venv python3-pip -y
+
+      - name: Create virtual environment
+        run: |
+          python3.12 -m venv ~/.venv/ansible_env
+          source ~/.venv/ansible_env/bin/activate
+
+      - name: Ensure global venv for this workflow
+        run: |
+          source ~/.venv/ansible_env/bin/activate
+          echo "$VIRTUAL_ENV/bin" >> $GITHUB_PATH
+          echo "VIRTUAL_ENV=$VIRTUAL_ENV" >> $GITHUB_ENV
+
+...

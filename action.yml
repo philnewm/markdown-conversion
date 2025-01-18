@@ -8,48 +8,55 @@ branding:
   color: green
 
 inputs:
+  domain_url:
+    description: 'Url of the code source domain'
+    required: false
   markdown_file_path:
     description: 'The path to the markdown file to convert'
+    required: true
+  code:
+    description: 'Convert code blocks to fit the requirements of the blog provider'
+    required: false
+    default: "false"
+  output_file_code:
+    description: 'The inserted code files output file path'
     required: true
   admonitions:
     description: 'Convert admonitions to fit the requirements of the blog provider'
     required: false
     default: "false"
-  code:
-    description: 'Convert code blocks to fit the requirements of the blog provider'
-    required: false
-    default: "false"
-  code_source:
-    description: 'The source of the code files to insert into the markdown file'
-    required: false
-  target_path:
-    description: 'The path to save the converted file'
+  output_file_admonitions:
+    description: 'The replaced admonitions files output file path'
     required: true
 
 runs:
   using: composite
+  # TODO figure out how to set up environment variables
 
   steps:
-    - name: Copy to temp file
-      shell: bash
-      run: |
-        cp ${{ inputs.markdown_file_path }} ${{ inputs.target_path }}
+    - name: Setup Python3.12
+      id: setup-python
+      uses: actions/setup-python@v5
+      with:
+        python-version: 3.12
 
     - name: Get code files
       if: code
       shell: bash
       run: |
-        curl
+        python${{ steps.setup-python.outputs.python-version }} markdown_conversion.py download-files ${{ inputs.domain_rul }} ${{ inputs.markdown_file_path }} 
 
     - name: Replace code references
       if: code
       shell: bash
       run: |
-        python markdown-conversion.py insert_code_references ${{ inputs.target_path }} ${{ inputs.code_files }}
+        python${{ steps.setup-python.outputs.python-version }} markdown_conversion.py insert-code-references ${{ inputs.markdown_file_path }} ${{ inputs.output_file_code }}
 
+    # TODO Ensure logic can run independent from each other
+    # currently update admonitions is dependent on code-replacement
     - name: Update admonitions
       shell: bash
       run: |
-        python markdown-conversion.py replace_admonitions ${{ inputs.target_path }}
+        python${{ steps.setup-python.outputs.python-version }} markdown-conversion.py replace_admonitions ${{ inputs.output_file_code }} ${{ inputs.output_file_admonitions }}
 
 ...

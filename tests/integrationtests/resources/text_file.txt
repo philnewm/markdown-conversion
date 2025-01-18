@@ -1,0 +1,4 @@
+package1==10.6.0
+package2==24.9.0
+package2-plugins[name]
+package3==7.1.0

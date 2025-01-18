@@ -28,8 +28,8 @@ def code_ref_meta_workflow(tmp_path: Path) -> code_block.CodeReferenceMeta:
     workflow_file: str = "test_workflow.yml"
     code_reference: Path = tmp_path / workflow_file
     return code_block.CodeReferenceMeta(
-        file_path=code_reference, title="First Task", language="bash"
-    )
+        file_path=code_reference, title="First Task", language="bash", source="test_workflow.yml", markup="```"
+        )
 
 
 def test_map_step_name_to_code(test_workflow: dict[str, dict[str, str]]) -> None:
@@ -46,7 +46,7 @@ def test_map_step_name_to_code(test_workflow: dict[str, dict[str, str]]) -> None
     }
 
     result: dict[str, str] = code_block.map_step_name_to_code(
-        gh_workflow=test_workflow, job_name="test_job"
+        gh_workflow=test_workflow,
     )
 
     assert isinstance(result, dict)
@@ -65,7 +65,6 @@ def test_parse_workflow_code(
 
     step_to_code_map: dict[str, str] = code_block.map_step_name_to_code(
         gh_workflow=test_workflow,
-        job_name="test_job",
     )
 
     expected_result = "echo 'First Task'"
@@ -83,18 +82,20 @@ def test_parse_workflow_code(
 class TestToken(NamedTuple):
     __test__ = False
     content: str
-
+    markup: str = "```"
+    info: str = "reference"
+    
 
 @pytest.fixture
 def test_token() -> TestToken:
-    test_token = TestToken(content="'file': 'path/to/test/file.yml'\ntitle: 'Test Title'\n'language': 'bash'")
+    test_token = TestToken(content="'file': 'path/to/test/file.yml'\ntitle: 'Test Title'\n'language': 'bash'", markup="```")
 
     return test_token
 
 
 def test_get_reference_values(test_token: TestToken) -> None:
     """
-    Given a token includign testing data
+    Given a token including testing data
     When running get_reference_values
     Than expect a CodeReferenceMetaData object containing the keys file, title, language 
     """
@@ -108,6 +109,7 @@ def test_get_reference_values(test_token: TestToken) -> None:
     assert expected_result["language"] == result.language
 
 
+@pytest.mark.skip(reason="Research how to properly unittest file downloads without external dependencies")
 def test_download_file_from(tmp_path: Path) -> None:
     """
     Given a file path
@@ -126,11 +128,9 @@ def test_download_file_from(tmp_path: Path) -> None:
     url: str = os.path.join(f"file://{server_dir}", file_path)
     destination_dir: Path = Path(tmp_path) / "downloads"
 
-    code_block.download_file_from(source=url, output_file=str(destination_dir))
+    code_block.download_file_from(domain=url, source=url, output_file=destination_dir)
 
     saved_file: Path = destination_dir.joinpath(file_path)
-
-    print(f"Saved file: {saved_file}")
 
     assert saved_file.exists()
     assert expected_content == saved_file.read_text()

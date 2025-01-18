@@ -47,25 +47,31 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FILE_PATH: "path/to/file.md"
+      FILE_PATH: "text.md"
+      URL: "https://raw.githubusercontent.com/philnewm/markdown-conversion/refs/heads/main/tests/integrationtests"
+      OUTPUT_CODE: "output_code/text.md"
+      OUTPUT_ADMONITIONS: "output_admonitions/text.md"
+      REFERENCE_FILE: "reference.md"
 
     steps:
-      - name: Create test file
-        run: |
-          curl markdown file to ${{ env.FILE_PATH }}
-
+      # TODO create test files from code
       - name: Run action
         uses: philnewm/markdown-conversion@main
         with:
+          domain_url: ${{ env.URL }}
           markdown_file_path: ${{ env.FILE_PATH }}
-          admonitions: true
           code: true
-          code_source: "."
-          target_path: "path/to/output.md"
+          output_file_code: ${{ env.OUTPUT_CODE }}
+          admonitions: true
+          output_file_admonitions: ${{ env.OUTPUT_ADMONITIONS }}
+
+      - name: Get reference file
+        run: |
+          curl ${{ env.URL }}/${{ env.REFERENCE_FILE }} -o ${{ env.REFERENCE_FILE }}
 
       - name: Test output
         run:
-          if diff -q "path/to/output.md" "path/to/reference.md"; then
+          if diff -q ${{ env.OUTPUT_ADMONITIONS }} ${{ env.REFERENCE_FILE }}; then
             echo "Files are the same"
           else
             echo "Files are different"
