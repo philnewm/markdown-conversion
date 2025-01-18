@@ -44,7 +44,7 @@ runs:
       if: inputs.code
       shell: bash
       run: |
-        python3.12 markdown_conversion.py download-files ${{ inputs.domain_rul }} ${{ inputs.markdown_file_path }} 
+        python3.12 markdown_conversion.py download-files ${{ inputs.domain_url }} ${{ inputs.markdown_file_path }} 
 
     - name: Replace code references
       if: inputs.code
