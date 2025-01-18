@@ -64,6 +64,6 @@ runs:
     - name: Update admonitions
       shell: bash
       run: |
-        python markdown-conversion.py replace_admonitions ${{ inputs.output_file_code }} ${{ inputs.output_file_admonitions }}
+        python markdown_conversion.py replace_admonitions ${{ inputs.output_file_code }} ${{ inputs.output_file_admonitions }}
 
 ...
