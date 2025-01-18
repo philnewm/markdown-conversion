@@ -69,6 +69,18 @@ jobs:
           admonitions: true
           output_file_admonitions: ${{ env.OUTPUT_ADMONITIONS }}
 
+      - name: Upload gh_output
+        uses: actions/upload-artifact@v4
+        with:
+          name: gh_output
+          path: ${{ env.OUTPUT_CODE }}
+
+      - name: Upload devto_output
+        uses: actions/upload-artifact@v4
+        with:
+          name: devto_output
+          path: ${{ env.OUTPUT_ADMONITIONS }}
+
       - name: Test output
         run:
           if diff -q ${{ env.OUTPUT_ADMONITIONS }} ${{ env.REFERENCE_FILE }}; then
