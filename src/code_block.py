@@ -114,10 +114,10 @@ def download_file_from(domain: str, source: str, output_file: Path = Path("local
             file.write(response.text)
 
     except requests.exceptions.RequestException as e:
-        print(f"An error occurred during the download: {e}")\
+        raise requests.RequestException(f"An error occurred during the download: {e}")
 
     except OSError as e:
-        print(f"An error occurred with the file system: {e}")
+        raise requests.RequestException(f"An error occurred with the file system: {e}")
 
     return output_file
 

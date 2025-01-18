@@ -48,7 +48,7 @@ jobs:
 
     env:
       FILE_PATH: "text.md"
-      URL: "https://raw.githubusercontent.com/philnewm/markdown-conversion/refs/heads/main/tests/integrationtests"
+      URL: "raw.githubusercontent.com/philnewm/markdown-conversion/refs/heads/main/tests/integrationtests"
       OUTPUT_CODE: "output_code/text.md"
       OUTPUT_ADMONITIONS: "output_admonitions/text.md"
       REFERENCE_FILE: "reference.md"

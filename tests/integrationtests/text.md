@@ -30,7 +30,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nulla orci, hend
 
 ```reference
 title: "requirements.txt"
-file: resources/requirements.txt
+file: resources/text_file.txt
 language: shell
 fold: true
 ln: true
