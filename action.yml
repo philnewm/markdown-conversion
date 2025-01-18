@@ -1,7 +1,7 @@
 ---
 
 name: Convert markdown files
-description: Convert certain elemnts of the provided file to fit the requirements for certain blog page providers
+description: Convert certain elements of the provided file to fit the requirements for certain blog page providers
 
 branding:
   icon: arrow-left-circle
@@ -41,13 +41,13 @@ runs:
         python-version: 3.12
 
     - name: Get code files
-      if: code
+      if: inputs.code
       shell: bash
       run: |
         python${{ steps.setup-python.outputs.python-version }} markdown_conversion.py download-files ${{ inputs.domain_rul }} ${{ inputs.markdown_file_path }} 
 
     - name: Replace code references
-      if: code
+      if: inputs.code
       shell: bash
       run: |
         python${{ steps.setup-python.outputs.python-version }} markdown_conversion.py insert-code-references ${{ inputs.markdown_file_path }} ${{ inputs.output_file_code }}
