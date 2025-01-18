@@ -75,6 +75,6 @@ runs:
       shell: bash
       run: |
         cd $GITHUB_ACTION_PATH
-        python markdown_conversion.py replace_admonitions ${{ inputs.output_file_code }} ${{ inputs.output_file_admonitions }}
+        python markdown_conversion.py replace-admonitions ${{ inputs.output_file_code }} ${{ inputs.output_file_admonitions }}
 
 ...
