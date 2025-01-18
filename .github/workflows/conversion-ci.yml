@@ -65,9 +65,9 @@ jobs:
           domain_url: ${{ env.URL }}
           markdown_file_path: ${{ env.FILE_PATH }}
           code: true
-          output_file_code: ${{ env.OUTPUT_CODE }}
+          output_file_code: ${{ github.workspace }}/${{ env.OUTPUT_CODE }}
           admonitions: true
-          output_file_admonitions: ${{ env.OUTPUT_ADMONITIONS }}
+          output_file_admonitions: ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}
 
       - name: Show files
         run: |
@@ -77,13 +77,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gh_output
-          path: ${{ env.OUTPUT_CODE }}
+          path: ${{ github.workspace }}/${{ env.OUTPUT_CODE }}
 
       - name: Upload devto_output
         uses: actions/upload-artifact@v4
         with:
           name: devto_output
-          path: ${{ env.OUTPUT_ADMONITIONS }}
+          path: ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}
 
       - name: Test output
         run:
