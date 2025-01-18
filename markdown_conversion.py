@@ -82,6 +82,7 @@ def replace_admonitions(input_file: str, output_file: str) -> None:
     for admonition_item in admonition.admonitions:
         content: str = content.replace(admonition_item.obsidian, admonition_item.devto)
 
+    export_file.parent.mkdir(parents=True, exist_ok=True)
     export_file.write_text(content)
 
 if __name__ == "__main__":
