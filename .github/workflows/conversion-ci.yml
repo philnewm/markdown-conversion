@@ -86,7 +86,7 @@ jobs:
           path: ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}
 
       - name: Test output
-        run:
+        run: |
           if diff -q ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }} ${{ github.workspace }}/${{ env.REFERENCE_FILE }}; then
             echo "Files are the same"
           else
