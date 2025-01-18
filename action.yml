@@ -51,19 +51,19 @@ runs:
       if: inputs.code
       shell: bash
       run: |
-        python3.12 markdown_conversion.py download-files ${{ inputs.domain_url }} ${{ inputs.markdown_file_path }} 
+        python markdown_conversion.py download-files ${{ inputs.domain_url }} ${{ inputs.markdown_file_path }} 
 
     - name: Replace code references
       if: inputs.code
       shell: bash
       run: |
-        python3.12 markdown_conversion.py insert-code-references ${{ inputs.markdown_file_path }} ${{ inputs.output_file_code }}
+        python markdown_conversion.py insert-code-references ${{ inputs.markdown_file_path }} ${{ inputs.output_file_code }}
 
     # TODO Ensure logic can run independent from each other
     # currently update admonitions is dependent on code-replacement
     - name: Update admonitions
       shell: bash
       run: |
-        python3.12 markdown-conversion.py replace_admonitions ${{ inputs.output_file_code }} ${{ inputs.output_file_admonitions }}
+        python markdown-conversion.py replace_admonitions ${{ inputs.output_file_code }} ${{ inputs.output_file_admonitions }}
 
 ...
