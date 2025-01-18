@@ -43,31 +43,31 @@ runs:
     - name: Debug File Paths
       shell: bash
       run: |
+        cd $GITHUB_ACTION_PATH
         echo "Current working directory: $(pwd)"
         echo "Files:"
         ls -R
-      working-directory: ${{ env.GITHUB_ACTION_PATH }}
 
     - name: Get code files
       if: inputs.code
       shell: bash
       run: |
+        cd $GITHUB_ACTION_PATH
         python markdown_conversion.py download-files ${{ inputs.domain_url }} ${{ inputs.markdown_file_path }} 
-      working-directory: ${{ env.GITHUB_ACTION_PATH }}
 
     - name: Replace code references
       if: inputs.code
       shell: bash
       run: |
+        cd $GITHUB_ACTION_PATH
         python markdown_conversion.py insert-code-references ${{ inputs.markdown_file_path }} ${{ inputs.output_file_code }}
-      working-directory: ${{ env.GITHUB_ACTION_PATH }}
 
     # TODO Ensure logic can run independent from each other
     # currently update admonitions is dependent on code-replacement
     - name: Update admonitions
       shell: bash
       run: |
+        cd $GITHUB_ACTION_PATH
         python markdown_conversion.py replace_admonitions ${{ inputs.output_file_code }} ${{ inputs.output_file_admonitions }}
-      working-directory: ${{ env.GITHUB_ACTION_PATH }}
 
 ...
