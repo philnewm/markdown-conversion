@@ -57,7 +57,7 @@ jobs:
       # TODO create test files from code
       - name: Get reference file
         run: |
-          curl -o ${{ env.REFERENCE_FILE }} ${{ env.URL }}/${{ env.REFERENCE_FILE }}
+          curl -o ${{ env.REFERENCE_FILE }} https://${{ env.URL }}/${{ env.REFERENCE_FILE }}
 
       - name: Run action
         uses: philnewm/markdown-conversion@main
