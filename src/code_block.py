@@ -4,9 +4,11 @@ import yaml
 
 from markdown_it.token import Token
 from pathlib import Path
-from urllib.parse import urljoin, urlunparse
 from typing import NamedTuple
 from src import constants
+from multiprocessing.pool import ThreadPool
+
+from markdown_it import MarkdownIt
 
 
 log = logging.Logger(__file__)
@@ -97,37 +99,35 @@ def get_reference_values(token: Token) -> CodeReferenceMeta:
     )
 
 
-def download_file_from(domain: str, source: str, output_file: Path = Path("local_tmp")) -> Path:
+def download_files(url_list: list[str], output_dir: Path = Path("local_tmp"), sub_dir: bool = False) -> str:
 
     # TODO research how to download all files at once
+    # checkout this example: https://www.quickprogrammingtips.com/python/how-to-download-multiple-files-concurrently-in-python.html
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    url_prefix: str = urlunparse(("https", domain, "", "", "", ""))
-    source_file: str = urljoin(f"{url_prefix}/", source.lstrip("/"))
+    for url in url_list:
+        file_response: requests.Response = requests.get(url, stream=True)
+        file_path: Path = output_dir / Path(url).name
+        if sub_dir:
+            output_sub_dir: Path = output_dir / Path(url).stem
+            output_sub_dir.mkdir(parents=True, exist_ok=True)
+            file_path = output_dir / Path(url).stem / Path(url).name
 
-    try:
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-
-        response: requests.Response = requests.get(source_file)
-        response.raise_for_status()
-
-        with open(str(output_file), "w", encoding="utf-8") as file:
-            file.write(response.text)
-
-    except requests.exceptions.RequestException as e:
-        raise requests.RequestException(f"An error occurred during the download: {e}")
-
-    except OSError as e:
-        raise requests.RequestException(f"An error occurred with the file system: {e}")
-
-    return output_file
+        if file_response.status_code == requests.codes.ok:
+            with open(file_path, 'wb') as file:
+                for data in file_response:
+                    file.write(data)        
 
 
 def format_source_code(ref_meta: CodeReferenceMeta, source_code: str) -> str:
     return f"```{ref_meta.language}\n{source_code}```"
 
 
-def get_code_refs(tokens: list[Token]) -> list[CodeReferenceMeta]:
+def extract_code_refs(md_file_path: str) -> list[CodeReferenceMeta]:
 
+    md = MarkdownIt()
+    md_content: str = Path(md_file_path).read_text()
+    tokens: list[Token] = md.parse(md_content)
     ref_list: list[CodeReferenceMeta] = []
 
     for token in tokens:

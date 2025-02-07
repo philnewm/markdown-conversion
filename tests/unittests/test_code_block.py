@@ -128,7 +128,7 @@ def test_download_file_from(tmp_path: Path) -> None:
     url: str = os.path.join(f"file://{server_dir}", file_path)
     destination_dir: Path = Path(tmp_path) / "downloads"
 
-    code_block.download_file_from(domain=url, source=url, output_file=destination_dir)
+    code_block.download_file(domain=url, source=url, output_file=destination_dir)
 
     saved_file: Path = destination_dir.joinpath(file_path)
 
