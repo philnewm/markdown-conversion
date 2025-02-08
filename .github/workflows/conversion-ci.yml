@@ -75,19 +75,19 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: code_output
-          path: ${{ github.workspace }}/${{ env.OUTPUT_CODE }}/${{ env.FILE_PATH }}
+          path: ${{ env.OUTPUT_CODE }}/${{ env.FILE_PATH }}
           if-no-files-found: error
 
       # - name: Upload admonition_output
       #   uses: actions/upload-artifact@v4
       #   with:
       #     name: admintion_output
-      #     path: ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}/${{ env.FILE_PATH }}
+      #     path: ${{ env.OUTPUT_ADMONITIONS }}/${{ env.FILE_PATH }}
       #     if-no-files-found: error
 
       - name: Test output code
         run: |
-          if diff -q ${{ github.workspace }}/${{ env.OUTPUT_CODE }}/${{ env.FILE_PATH }} ${{ github.workspace }}/${{ env.REFERENCE_CODE }}; then
+          if diff -q ${{ env.OUTPUT_CODE }}/${{ env.FILE_PATH }} ${{ env.REFERENCE_CODE }}; then
             echo "Files are the same"
           else
             echo "Files are different"
