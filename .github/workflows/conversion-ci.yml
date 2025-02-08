@@ -51,13 +51,14 @@ jobs:
       URL: "raw.githubusercontent.com/philnewm/markdown-conversion/refs/heads/main/tests/integrationtests"
       OUTPUT_CODE: "output_code"
       OUTPUT_ADMONITIONS: "output_admonitions"
-      REFERENCE_FILE: "reference.md"
+      REFERENCE_ADMONITIONS: "reference_admonitions.md"
+      REFERENCE_CODE: "reference_admonitions.md"
 
     steps:
       # TODO create test files from code
       - name: Get reference file
         run: |
-          curl -o ${{ env.REFERENCE_FILE }} https://${{ env.URL }}/${{ env.REFERENCE_FILE }}
+          curl -o ${{ env.REFERENCE_CODE }} https://${{ env.URL }}/${{ env.REFERENCE_CODE }}
 
       - name: Run action
         uses: philnewm/markdown-conversion@main
@@ -82,9 +83,9 @@ jobs:
           name: devto_output
           path: ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}
 
-      - name: Test output
+      - name: Test output code
         run: |
-          if diff -q ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}/${{ env.FILE_PATH }} ${{ github.workspace }}/${{ env.REFERENCE_FILE }}; then
+          if diff -q ${{ github.workspace }}/${{ env.OUTPUT_CODE }}/${{ env.FILE_PATH }} ${{ github.workspace }}/${{ env.REFERENCE_CODE }}; then
             echo "Files are the same"
           else
             echo "Files are different"
