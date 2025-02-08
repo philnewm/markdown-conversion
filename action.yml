@@ -50,7 +50,7 @@ runs:
       shell: bash
       run: |
         cd $GITHUB_ACTION_PATH
-        python markdown_conversion.py download ${{ markdown_file_urls }}
+        python markdown_conversion.py download ${{ inputs.markdown_file_urls }}
 
     - name: Replace code references
       if: inputs.output_file_admonitions
