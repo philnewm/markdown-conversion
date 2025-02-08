@@ -122,6 +122,7 @@ def download_files(url_list: list[str], output_dir: Path = Path("local_tmp"), su
 
     # TODO research how to download all files at once
     # checkout this example: https://www.quickprogrammingtips.com/python/how-to-download-multiple-files-concurrently-in-python.html
+    # TODO error on 404
     output_dir.mkdir(parents=True, exist_ok=True)
 
     for url in url_list:
