@@ -52,7 +52,7 @@ jobs:
       OUTPUT_CODE: "output_code"
       OUTPUT_ADMONITIONS: "output_admonitions"
       REFERENCE_ADMONITIONS: "reference_admonitions.md"
-      REFERENCE_CODE: "reference_admonitions.md"
+      REFERENCE_CODE: "reference_code.md"
 
     steps:
       # TODO create test files from code
