@@ -64,27 +64,26 @@ jobs:
         uses: philnewm/markdown-conversion@main
         with:
           markdown_file_urls: "https://${{ env.URL }}/${{ env.FILE_PATH }}"
-          output_dir_code: ${{ github.workspace }}/${{ env.OUTPUT_CODE }}
+          output_dir_code: /${{ github.workspace }}/${{ env.OUTPUT_CODE }}
           # output_dir_admonitions: ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}
 
       - name: Show files
         run: |
           tree -h
 
-      - name: Upload gh_output
+      - name: Upload code_output
         uses: actions/upload-artifact@v4
         with:
-          name: gh_output
-          path: ${{ github.workspace }}/${{ env.OUTPUT_CODE }}/${{ env.FILE_PATH }}
+          name: code_output
+          path: /${{ github.workspace }}/${{ env.OUTPUT_CODE }}/${{ env.FILE_PATH }}
           if-no-files-found: error
 
-
-      - name: Upload devto_output
-        uses: actions/upload-artifact@v4
-        with:
-          name: devto_output
-          path: ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}/${{ env.FILE_PATH }}
-          if-no-files-found: error
+      # - name: Upload admonition_output
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: admintion_output
+      #     path: ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}/${{ env.FILE_PATH }}
+      #     if-no-files-found: error
 
       - name: Test output code
         run: |
