@@ -51,6 +51,7 @@ def insert_code_references(
         code_map_list: list[CodeMap] = map_reference_to_source(code_refs=code_references, path=Path(path_handler.local_resources), data_dir=data_dir)
         export_text: str = update_text(source_file=path_handler.local_markdown, code_map_list=code_map_list)
         Path(output_dir).mkdir(parents=True, exist_ok=True)
+        print(f"{output_dir}/{data_dir}.md")
         Path(f"{output_dir}/{data_dir}.md").write_text(export_text)
 
 
