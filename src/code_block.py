@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import logging
 import requests
 import yaml
@@ -14,18 +15,36 @@ from markdown_it import MarkdownIt
 log = logging.Logger(__file__)
 
 
-class CodeMap(NamedTuple):
+@dataclass
+class CodeMap():
     reference: str
     source_code: str
 
 
-class CodeReferenceMeta(NamedTuple):
+@dataclass
+class CodeReferenceMeta():
     file_path: Path
     title: str
     language: str
     source: str
     markup: str
 
+
+class SourceFile():
+    def __init__(self, source_path: Path, local_path: Path) -> None:
+        self.local_path: Path = local_path
+        self.source_path: Path = source_path
+        self.local_file_path: Path = self._set_local_path()
+        self.workflow: bool = self._get_workflow()
+
+    def _set_local_path(self) -> Path:
+        return Path("{self.local_tmp}/resources/{self.source_path.name}")
+    
+    def _get_workflow(self) -> bool:
+        if constants.workflow_directory in str(self.source_path):
+            return True
+
+        return False
 
 
 def map_step_name_to_code(
@@ -124,6 +143,14 @@ def format_source_code(ref_meta: CodeReferenceMeta, source_code: str) -> str:
 
 
 def extract_code_refs(md_file_path: str) -> list[CodeReferenceMeta]:
+    """Extract the code reference from a markdown file.
+
+    Args:
+        md_file_path (str): File path to a markdown file
+
+    Returns:
+        list[CodeReferenceMeta]: Code reference objects
+    """
 
     md = MarkdownIt()
     md_content: str = Path(md_file_path).read_text()
@@ -139,20 +166,21 @@ def extract_code_refs(md_file_path: str) -> list[CodeReferenceMeta]:
     return ref_list
 
 
-def get_workflow_code(files: list[Path], path: Path) -> dict[str, str]:
+def get_workflow_code(file_paths: list[Path]) -> dict[str, str]:
 
     combined_maps: dict[str, str] = {}
 
-    for file in files:
+    for file_path in file_paths:
         step_to_code_map: dict[str, str] = map_step_name_to_code(
-            gh_workflow=yaml.safe_load(Path(path / file).read_text())
+            gh_workflow=yaml.safe_load(Path(file_path).read_text())
         )
 
         combined_maps.update(step_to_code_map)
 
     return combined_maps
 
-def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, step_to_code_maps: dict[str, str]) -> list[CodeMap]:
+
+def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data_dir: str) -> list[CodeMap]:
     """Map the code references to the source code they point to.
 
     Args:
@@ -163,12 +191,16 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, step
         list[CodeMap]: List of code mappings
     """
 
+    unique_code_files: set[Path] = set(code_ref.file_path for code_ref in code_refs)
+    workflow_files: list[Path] = [Path(f"local_tmp/{data_dir}/resources/{file.name}") for file in unique_code_files if file.parent.name == constants.workflow_directory]
+
+    step_to_code_maps: dict[str, str] = get_workflow_code(file_paths=workflow_files)
     code_map_list: list[CodeMap] = []
 
     # ToDo Implement blog dataclass to hold information like title, tags and so on
 
     for code_ref in code_refs:
-        output_file: Path = path / code_ref.file_path
+        output_file: Path = path / code_ref.file_path.name
 
         if code_ref.file_path.parent.name == constants.workflow_directory:
             source_code: str = step_to_code_maps[code_ref.title]
@@ -191,7 +223,7 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, step
     return code_map_list
 
 
-def update_text(source_text: str, code_map_list: list[CodeMap]) -> str:
+def update_text(source_file: str, code_map_list: list[CodeMap]) -> str:
     """Replace source text with referenced code.
 
     Args:
@@ -202,7 +234,7 @@ def update_text(source_text: str, code_map_list: list[CodeMap]) -> str:
         str: Updated text output
     """
 
-    export_content: str = source_text
+    export_content: str = Path(source_file).read_text()
     for CodeMap in code_map_list:
         export_content: str = export_content.replace(
             CodeMap.reference, CodeMap.source_code

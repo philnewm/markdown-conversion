@@ -30,13 +30,16 @@ def write_file(file_path: str, content: str) -> None:
         file.write(content)
 
 class PathHandler():
-    def __init__(self, file_path: str, local_tmp: str) -> None:
+    def __init__(self, file_path: str, local_tmp: str, gh_url: bool = False) -> None:
 
         self.file_name: str = os.path.basename(file_path)
         self.file_name_raw: str = os.path.splitext(self.file_name)[0]
         self.local_tmp: str = f"{local_tmp}/{self.file_name_raw}"
+        self.local_markdown: str = f"{self.local_tmp}/{self.file_name}"
         self.local_resources: str = f"{local_tmp}/{self.file_name_raw}/resources"
-        self.repo_root: str = self.extract_repo_root(file_path)
+
+        if gh_url:
+            self.repo_root: str = self.extract_repo_root(file_path)
 
     def extract_repo_root(self, url: str) -> str:
         """Extracts the repository root including the branch name from a raw.githubusercontent.com URL.

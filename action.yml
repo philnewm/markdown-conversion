@@ -8,26 +8,17 @@ branding:
   color: green
 
 inputs:
-  domain_url:
-    description: 'Url of the code source domain'
-    required: false
-  markdown_file_path:
-    description: 'The path to the markdown file to convert'
+  markdown_file_urls:
+    description: 'The urls to the markdown file to convert - expects a comma separated string'
     required: true
-  code:
-    description: 'Convert code blocks to fit the requirements of the blog provider'
+  output_dir_code:
+    description: 'The inserted code files output directory'
     required: false
-    default: "false"
-  output_file_code:
-    description: 'The inserted code files output file path'
-    required: true
-  admonitions:
-    description: 'Convert admonitions to fit the requirements of the blog provider'
+    default: ""
+  output_dir_admonitions:
+    description: 'The replaced admonitions files output directory'
     required: false
-    default: "false"
-  output_file_admonitions:
-    description: 'The replaced admonitions files output file path'
-    required: true
+    default: ""
 
 runs:
   using: composite
@@ -56,22 +47,22 @@ runs:
         ls -R
 
     - name: Get code files
-      if: inputs.code
       shell: bash
       run: |
         cd $GITHUB_ACTION_PATH
-        python markdown_conversion.py download-files ${{ inputs.domain_url }} ${{ inputs.markdown_file_path }} 
+        python markdown_conversion.py download ${{ markdown_file_urls }}
 
     - name: Replace code references
-      if: inputs.code
+      if: inputs.output_file_admonitions
       shell: bash
       run: |
         cd $GITHUB_ACTION_PATH
-        python markdown_conversion.py insert-code-references ${{ inputs.markdown_file_path }} ${{ inputs.output_file_code }}
+        python markdown_conversion.py insert-code-references  ${{ inputs.output_dir_code }}
 
     # TODO Ensure logic can run independent from each other
     # currently update admonitions is dependent on code-replacement
     - name: Update admonitions
+      if: inputs.output_dir_admonitions
       shell: bash
       run: |
         cd $GITHUB_ACTION_PATH
