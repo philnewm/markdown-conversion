@@ -49,8 +49,8 @@ jobs:
     env:
       FILE_PATH: "text.md"
       URL: "raw.githubusercontent.com/philnewm/markdown-conversion/refs/heads/main/tests/integrationtests"
-      OUTPUT_CODE: "output_code/text.md"
-      OUTPUT_ADMONITIONS: "output_admonitions/text.md"
+      OUTPUT_CODE: "output_code"
+      OUTPUT_ADMONITIONS: "output_admonitions"
       REFERENCE_FILE: "reference.md"
 
     steps:
@@ -62,7 +62,7 @@ jobs:
       - name: Run action
         uses: philnewm/markdown-conversion@main
         with:
-          markdown_file_urls: https://${{ env.URL }}/${{ env.REFERENCE_FILE }}
+          markdown_file_urls: "https://${{ env.URL }}/${{ env.REFERENCE_FILE }}"
           output_dir_code: ${{ github.workspace }}/${{ env.OUTPUT_CODE }}
           output_dir_admonitions: ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}
 
