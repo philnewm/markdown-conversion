@@ -31,7 +31,7 @@ def download(input_files: str) -> None:
 
         ref_paths: set[str] = set(str(code_ref.file_path) for code_ref in code_references)
         ref_urls: list[str] = [f"{path_handler.repo_root}/{ref_path}" for ref_path in ref_paths]
-
+        print(f"{path_handler.repo_root=}")
         download_files(url_list=ref_urls, output_dir=Path(path_handler.local_resources))
 
 

@@ -14,7 +14,7 @@ Maecenas vel ultrices ipsum. Quisque ac dapibus libero, eget lobortis arcu. Inte
 
 ```reference
 title: "Create virtual environment"
-file: workflows/workflow_file.yml
+file: tests/integrationtests/workflows/workflow_file.yml
 start: 38
 end: "+1"
 language: shell
@@ -30,7 +30,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nulla orci, hend
 
 ```reference
 title: "requirements.txt"
-file: resources/text_file.txt
+file: tests/integrationtests/resources/text_file.txt
 language: shell
 fold: true
 ln: true
