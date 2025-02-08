@@ -64,7 +64,7 @@ jobs:
         with:
           markdown_file_urls: "https://${{ env.URL }}/${{ env.FILE_PATH }}"
           output_dir_code: ${{ github.workspace }}/${{ env.OUTPUT_CODE }}
-          output_dir_admonitions: ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}
+          # output_dir_admonitions: ${{ github.workspace }}/${{ env.OUTPUT_ADMONITIONS }}
 
       - name: Show files
         run: |
