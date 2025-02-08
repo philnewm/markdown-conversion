@@ -52,6 +52,14 @@ runs:
         cd $GITHUB_ACTION_PATH
         python markdown_conversion.py download ${{ inputs.markdown_file_urls }}
 
+    - name: Show current files
+      shell: bash
+      run: |
+        cd $GITHUB_ACTION_PATH
+        echo "Current working directory: $(pwd)"
+        echo "Files:"
+        ls -R
+
     - name: Replace code references
       if: inputs.output_dir_code
       shell: bash
