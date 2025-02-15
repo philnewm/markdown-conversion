@@ -2,11 +2,11 @@ from src.code_block import (
     download_files,
     extract_code_refs,
     CodeReferenceMeta,
-    get_workflow_code,
     map_reference_to_source,
     CodeMap,
     update_text,
 )
+from admonition import admonitions
 from src.file_io import PathHandler
 from pathlib import Path
 
@@ -51,23 +51,23 @@ def insert_code_references(
         code_map_list: list[CodeMap] = map_reference_to_source(code_refs=code_references, path=Path(path_handler.local_resources), data_dir=data_dir)
         export_text: str = update_text(source_file=path_handler.local_markdown, code_map_list=code_map_list)
         Path(output_dir).mkdir(parents=True, exist_ok=True)
-        print(f"{output_dir}/{data_dir}.md")
         Path(f"{output_dir}/{data_dir}.md").write_text(export_text)
 
 
 @cli.command()
-@click.argument("input_file", type=click.STRING)
-@click.argument("output_file", type=click.STRING)
-def replace_admonitions(input_file: str, output_file: str) -> None:
+@click.argument("input_dir", type=click.STRING)
+@click.argument("output_dir", type=click.STRING)
+def replace_admonitions(input_dir: str, output_dir: str) -> None:
+    for filename in os.scandir(input_dir):
+        content = ""
+        content: str = Path(filename).read_text()
+        export_file: Path = Path(output_dir)
 
-    content: str = Path(input_file).read_text()
-    export_file: Path = Path(output_file)
+        for admonition_item in admonitions:
+            content: str = content.replace(admonition_item.obsidian, admonition_item.devto)
 
-    for admonition_item in admonition.admonitions:
-        content: str = content.replace(admonition_item.obsidian, admonition_item.devto)
-
-    export_file.parent.mkdir(parents=True, exist_ok=True)
-    export_file.write_text(content)
+        export_file.parent.mkdir(parents=True, exist_ok=True)
+        export_file.write_text(content)
 
 if __name__ == "__main__":
     cli()
