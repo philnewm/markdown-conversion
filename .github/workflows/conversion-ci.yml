@@ -87,7 +87,7 @@ jobs:
 
       - name: Test output code
         run: |
-          if diff -q ${{ env.OUTPUT_CODE }}/${{ env.FILE_PATH }} ${{ env.REFERENCE_ADMONITIONS }}; then
+          if diff -q ${{ env.OUTPUT_ADMONITIONS }}/${{ env.FILE_PATH }} ${{ env.REFERENCE_ADMONITIONS }}; then
             echo "Files are the same"
           else
             echo "Files are different"
