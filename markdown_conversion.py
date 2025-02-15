@@ -58,6 +58,8 @@ def insert_code_references(
 @click.argument("input_dir", type=click.STRING)
 @click.argument("output_dir", type=click.STRING)
 def replace_admonitions(input_dir: str, output_dir: str) -> None:
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
     for filename in os.scandir(input_dir):
         content = ""
         content: str = Path(filename).read_text()
@@ -66,7 +68,6 @@ def replace_admonitions(input_dir: str, output_dir: str) -> None:
         for admonition_item in admonitions:
             content: str = content.replace(admonition_item.obsidian, admonition_item.devto)
 
-        export_path.parent.mkdir(parents=True, exist_ok=True)
         export_path.write_text(content)
 
 if __name__ == "__main__":
