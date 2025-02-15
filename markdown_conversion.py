@@ -6,7 +6,7 @@ from src.code_block import (
     CodeMap,
     update_text,
 )
-from admonition import admonitions
+from src.admonition import admonitions
 from src.file_io import PathHandler
 from pathlib import Path
 
