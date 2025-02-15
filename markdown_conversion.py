@@ -61,13 +61,13 @@ def replace_admonitions(input_dir: str, output_dir: str) -> None:
     for filename in os.scandir(input_dir):
         content = ""
         content: str = Path(filename).read_text()
-        export_file: Path = Path(output_dir)
+        export_path: Path = Path(output_dir, filename)
 
         for admonition_item in admonitions:
             content: str = content.replace(admonition_item.obsidian, admonition_item.devto)
 
-        export_file.parent.mkdir(parents=True, exist_ok=True)
-        export_file.write_text(content)
+        export_path.parent.mkdir(parents=True, exist_ok=True)
+        export_path.write_text(content)
 
 if __name__ == "__main__":
     cli()
