@@ -90,7 +90,7 @@ jobs:
           if diff ${{ env.OUTPUT_ADMONITIONS }}/${{ env.FILE_PATH }} ${{ env.REFERENCE_ADMONITIONS }}; then
             echo "Files are the same"
           else
-            echo "Files are different"
+            echo "Files differ"
             exit 1
           fi
 
