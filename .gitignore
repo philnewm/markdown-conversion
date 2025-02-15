@@ -172,3 +172,4 @@ cython_debug/
 local_tmp
 output
 code_output
+output*

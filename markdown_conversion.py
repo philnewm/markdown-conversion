@@ -31,7 +31,6 @@ def download(input_files: str) -> None:
 
         ref_paths: set[str] = set(str(code_ref.file_path) for code_ref in code_references)
         ref_urls: list[str] = [f"{path_handler.repo_root}/{ref_path}" for ref_path in ref_paths]
-        print(f"{path_handler.repo_root=}")
         download_files(url_list=ref_urls, output_dir=Path(path_handler.local_resources))
 
 
@@ -61,9 +60,10 @@ def replace_admonitions(input_dir: str, output_dir: str) -> None:
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     for filename in os.scandir(input_dir):
+        file_name: str = filename.name
         content = ""
-        content: str = Path(filename).read_text()
-        export_path: Path = Path(output_dir, filename)
+        content: str = Path(input_dir, file_name).read_text()
+        export_path: Path = Path(output_dir, file_name)
 
         for admonition_item in admonitions:
             content: str = content.replace(admonition_item.obsidian, admonition_item.devto)
