@@ -9,7 +9,6 @@ on:
     paths-ignore:
       - 'README.md'
       - 'TODO.md'
-      - '**/*.md'
       - .gitignore
 
 env:
