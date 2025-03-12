@@ -15,14 +15,14 @@ inputs:
     description: 'The inserted code files output directory'
     required: false
     default: ""
-  fence_formatting:
-    description: 'Add options to code fences or not'
-    required: false
-    default: ""
   output_dir_admonitions:
     description: 'The replaced admonitions files output directory'
     required: false
     default: ""
+  fence_formatting:
+    description: 'Add options to code fences or not'
+    required: false
+    default: "False"
 
 runs:
   using: composite
