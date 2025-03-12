@@ -15,6 +15,10 @@ inputs:
     description: 'The inserted code files output directory'
     required: false
     default: ""
+  fence_formatting:
+    description: 'Add options to code fences or not'
+    required: false
+    default: ""
   output_dir_admonitions:
     description: 'The replaced admonitions files output directory'
     required: false
@@ -57,7 +61,7 @@ runs:
       shell: bash
       run: |
         cd $GITHUB_ACTION_PATH
-        python markdown_conversion.py insert-code-references "${{ inputs.output_dir_code }}"
+        python markdown_conversion.py insert-code-references "${{ inputs.output_dir_code }}" "{{ inputs.fence_formatting }}"
 
     # TODO Ensure logic can run independent from each other
     # currently update admonitions is dependent on code-replacement
