@@ -22,7 +22,7 @@ inputs:
   fence_formatting:
     description: 'Add options to code fences or not'
     required: false
-    default: "False"
+    default: "true"
 
 runs:
   using: composite
