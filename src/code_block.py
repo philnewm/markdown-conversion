@@ -217,7 +217,9 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data
             continue
 
         source_code = output_file.read_text()
-        source_code_formatted = f"```{code_ref.language} linenums=\"1\" title=\"{code_ref.title}\"\n{source_code}```"
+        source_code_formatted: str = f"```{code_ref.language}\n{source_code}```"
+        if fence_formatting:
+            source_code_formatted = f"```{code_ref.language} linenums=\"1\" title=\"{code_ref.title}\"\n{source_code}```"
 
         code_map_list.append(
             CodeMap(reference=code_ref.source, source_code=source_code_formatted)
