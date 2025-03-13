@@ -205,9 +205,7 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data
 
         if code_ref.file_path.parent.name == constants.workflow_directory:
             source_code: str = step_to_code_maps[code_ref.title]
-            source_code_formatted: str = f"```{code_ref.language}\n{source_code}```"
-            if fence_formatting:
-                source_code_formatted: str = f"```{code_ref.language} linenums=\"1\" title=\"{code_ref.title}\"\n{source_code}```"
+            source_code_formatted: str = f"```{code_ref.language} linenums=\"1\" title=\"{code_ref.title}\"\n{source_code}```"
             code_map_list.append(
                 CodeMap(
                 reference=code_ref.source,
@@ -217,9 +215,7 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data
             continue
 
         source_code = output_file.read_text()
-        source_code_formatted: str = f"```{code_ref.language}\n{source_code}```"
-        if fence_formatting:
-            source_code_formatted = f"```{code_ref.language} linenums=\"1\" title=\"{code_ref.title}\"\n{source_code}```"
+        source_code_formatted = f"```{code_ref.language} linenums=\"1\" title=\"{code_ref.title}\"\n{source_code}```"
 
         code_map_list.append(
             CodeMap(reference=code_ref.source, source_code=source_code_formatted)
@@ -246,3 +242,18 @@ def update_text(source_file: str, code_map_list: list[CodeMap]) -> str:
         )
 
     return export_content
+
+
+def clean_parameters(file_path: Path) -> str:
+
+    md_content: list[str] = file_path.read_text().split("\n")
+    output_lines: list[str] = []
+
+    for line in md_content:
+        if line.startswith("```"):
+            output_lines.append(line.split(" ")[0])
+            continue
+
+        output_lines.append(line)
+
+    return "\n".join(output_lines)

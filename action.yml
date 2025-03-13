@@ -19,8 +19,8 @@ inputs:
     description: 'The replaced admonitions files output directory'
     required: false
     default: ""
-  fence_formatting:
-    description: 'Add options to code fences or not'
+  code_parameters:
+    description: 'Remove code parameters'
     required: false
     default: "true"
 
@@ -61,7 +61,14 @@ runs:
       shell: bash
       run: |
         cd $GITHUB_ACTION_PATH
-        FENCE_FORMATTING_BOOL=$( [[ "${{ inputs.fence_formatting }}" == "true" ]] && echo "true" || echo "false" )
+        python markdown_conversion.py clean_code_blocks  "${{ inputs.output_dir_code }}" "${{ inputs.output_dir_code }}"
+
+    - name: Replace code parameters
+      if: inputs.code_parameters == "true"
+      shell: bash
+      run: |
+        cd $GITHUB_ACTION_PATH
+        FENCE_FORMATTING_BOOL=$( [[ "${{ inputs.code_parameters }}" == "true" ]] && echo "true" || echo "false" )
         python markdown_conversion.py insert-code-references "${{ inputs.output_dir_code }}" "$FENCE_FORMATTING_BOOL"
 
     # TODO Ensure logic can run independent from each other

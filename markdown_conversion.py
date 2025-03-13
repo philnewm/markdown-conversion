@@ -5,6 +5,7 @@ from src.code_block import (
     map_reference_to_source,
     CodeMap,
     update_text,
+    clean_parameters,
 )
 from src.admonition import admonitions
 from src.file_io import PathHandler
@@ -58,6 +59,17 @@ def insert_code_references(
         export_text: str = update_text(source_file=path_handler.local_markdown, code_map_list=code_map_list)
         Path(output_dir).mkdir(parents=True, exist_ok=True)
         Path(f"{output_dir}/{data_dir}.md").write_text(export_text)
+
+
+@cli.command()
+@click.argument("input_dir", type=click.STRING)
+@click.argument("output_dir", type=click.STRING)
+def clean_code_blocks(input_dir: str, output_dir: str) -> None:
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    
+    for filename in os.scandir(input_dir):
+        result: str = clean_parameters(file_path=Path(filename))
+        Path(output_dir, filename).write_text(result)
 
 
 @cli.command()

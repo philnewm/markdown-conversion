@@ -134,3 +134,12 @@ def test_download_file_from(tmp_path: Path) -> None:
 
     assert saved_file.exists()
     assert expected_content == saved_file.read_text()
+
+
+def test_clean_parameters() -> None:
+
+    expected_result: str = Path("tests/unittests/code_blocks_reference.md").read_text()
+    result: str = code_block.clean_parameters(Path("tests/unittests/code_blocks.md"))
+
+    assert isinstance(result, str)
+    assert expected_result == result
