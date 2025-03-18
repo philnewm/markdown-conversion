@@ -12,7 +12,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus pellentesque, n
 
 Maecenas vel ultrices ipsum. Quisque ac dapibus libero, eget lobortis arcu. Interdum et malesuada fames ac ante ipsum primis in faucibus. Nullam sapien dui, egestas quis tortor in, egestas efficitur ante. Proin vestibulum orci nec metus pharetra vulputate.
 
-```shell linenums="1" title="Create virtual environment"
+```shell
 python3.12 -m venv ~/.venv/ansible_env
 source ~/.venv/ansible_env/bin/activate
 ```
@@ -23,7 +23,7 @@ source ~/.venv/ansible_env/bin/activate
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nulla orci, hendrerit ut lobortis nec, aliquam sit amet libero. Maecenas sit amet mauris euismod, finibus purus ac, egestas nunc. Nam condimentum augue at sem vulputate, non dignissim libero porttitor.
 
-```shell linenums="1" title="requirements.txt"
+```shell
 package1==10.6.0
 package2==24.9.0
 package2-plugins[name]
