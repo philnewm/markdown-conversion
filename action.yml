@@ -22,7 +22,7 @@ inputs:
   code_parameters:
     description: 'Remove code parameters'
     required: false
-    default: "true"
+    default: 'false'
 
 runs:
   using: composite
@@ -64,7 +64,7 @@ runs:
         python markdown_conversion.py clean_code_blocks  "${{ inputs.output_dir_code }}" "${{ inputs.output_dir_code }}"
 
     - name: Replace code parameters
-      if: inputs.code_parameters == "true"
+      if: inputs.code_parameters == 'true'
       shell: bash
       run: |
         cd $GITHUB_ACTION_PATH
