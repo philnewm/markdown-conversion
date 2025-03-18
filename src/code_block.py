@@ -181,7 +181,7 @@ def get_workflow_code(file_paths: list[Path]) -> dict[str, str]:
     return combined_maps
 
 
-def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data_dir: str, fence_formatting: bool = True) -> list[CodeMap]:
+def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data_dir: str) -> list[CodeMap]:
     """Map the code references to the source code they point to.
 
     Args:

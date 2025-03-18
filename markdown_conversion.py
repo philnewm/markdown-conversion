@@ -37,10 +37,8 @@ def download(input_files: str) -> None:
 
 @cli.command()
 @click.argument("output_dir", type=click.STRING)
-@click.argument("fence_formatting", type=click.BOOL)
 def insert_code_references(
     output_dir: str,
-    fence_formatting: bool = True,
     ) -> None:
 
     data_dirs: list[str] = os.listdir("local_tmp")
@@ -54,7 +52,6 @@ def insert_code_references(
             code_refs=code_references,
             path=Path(path_handler.local_resources),
             data_dir=data_dir,
-            fence_formatting=fence_formatting,
             )
         export_text: str = update_text(source_file=path_handler.local_markdown, code_map_list=code_map_list)
         Path(output_dir).mkdir(parents=True, exist_ok=True)

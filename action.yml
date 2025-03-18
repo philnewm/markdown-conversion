@@ -61,14 +61,14 @@ runs:
       shell: bash
       run: |
         cd $GITHUB_ACTION_PATH
-        python markdown_conversion.py clean_code_blocks  "${{ inputs.output_dir_code }}" "${{ inputs.output_dir_code }}"
+        python markdown_conversion.py insert-code-references "${{ inputs.output_dir_code }}"
 
-    - name: Replace code parameters
+    - name: Remove code parameters
       if: inputs.code_parameters == 'true'
       shell: bash
       run: |
         cd $GITHUB_ACTION_PATH
-        python markdown_conversion.py insert-code-references "${{ inputs.output_dir_code }}" "${{ inputs.output_dir_code }}"
+        python markdown_conversion.py clean-code-blocks "${{ inputs.output_dir_code }}" "${{ inputs.output_dir_code }}"
 
     # TODO Ensure logic can run independent from each other
     # currently update admonitions is dependent on code-replacement
