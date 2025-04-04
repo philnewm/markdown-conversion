@@ -66,7 +66,8 @@ def clean_code_blocks(input_dir: str, output_dir: str) -> None:
     
     for filename in os.scandir(input_dir):
         result: str = clean_parameters(file_path=Path(filename))
-        Path(output_dir, filename).write_text(result)
+        print(output_dir, filename.name)
+        Path(output_dir, filename.name).write_text(result)
 
 
 @cli.command()

@@ -52,7 +52,7 @@ class PathHandler():
             raise ValueError("URL does not match expected GitHub raw format.")
         
         # Extract the repository root (including branch name)
-        user, repo, _, _, branch = parts[:5]
+        user, repo, branch, _, _ = parts[:5]
         repo_root: str = f"https://raw.githubusercontent.com/{user}/{repo}/refs/heads/{branch}"
         
         return repo_root

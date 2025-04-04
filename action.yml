@@ -9,7 +9,7 @@ branding:
 
 inputs:
   markdown_file_urls:
-    description: 'The urls to the markdown file to convert - expects a comma separated string'
+    description: 'The urls to the markdown files to convert - expects a comma separated string'
     required: true
   output_dir_code:
     description: 'The inserted code files output directory'
