@@ -85,6 +85,8 @@ def replace_admonitions(input_dir: str, output_dir: str) -> None:
         for admonition_item in admonitions:
             content: str = content.replace(admonition_item.obsidian, admonition_item.devto)
 
+        content.replace("<!-- more -->\n\n", "")
+
         export_path.write_text(content)
 
 if __name__ == "__main__":
