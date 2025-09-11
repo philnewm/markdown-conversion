@@ -16,7 +16,7 @@ Maecenas vel ultrices ipsum. Quisque ac dapibus libero, eget lobortis arcu. Inte
 
 ```reference
 title: "Create virtual environment"
-file: tests/integrationtests/workflows/workflow_file.yml
+file: https://raw.githubusercontent.com/philnewm/markdown-conversion/refs/heads/main/tests/integrationtests/workflows/workflow_file.yml
 start: 38
 end: "+1"
 language: shell
@@ -32,7 +32,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam nulla orci, hend
 
 ```reference
 title: "requirements.txt"
-file: tests/integrationtests/resources/text_file.txt
+file: https://raw.githubusercontent.com/philnewm/markdown-conversion/refs/heads/main/tests/integrationtests/resources/text_file.txt
 language: shell
 fold: true
 ln: true
