@@ -23,7 +23,7 @@ class CodeMap():
 
 @dataclass
 class CodeReferenceMeta():
-    file_path: Path
+    file_path: str
     title: str
     language: str
     source: str
@@ -39,7 +39,7 @@ class SourceFile():
 
     def _set_local_path(self) -> Path:
         return Path("{self.local_tmp}/resources/{self.source_path.name}")
-    
+
     def _get_workflow(self) -> bool:
         if constants.workflow_directory in str(self.source_path):
             return True
@@ -63,7 +63,7 @@ def map_step_name_to_code(
 
     if "jobs" not in gh_workflow:
         raise ValueError("Couldn't find jobs in the workflow file")
-    
+
     if len(gh_workflow["jobs"]) > 1:
         raise ValueError("Multiple jobs in the workflow file")
 
@@ -103,12 +103,12 @@ def get_reference_values(token: Token) -> CodeReferenceMeta:
         token (Token): Markdown token
 
     Returns:
-        CodeReferenceMeta: Code reference object 
+        CodeReferenceMeta: Code reference object
     """
     reference_dict: dict[str, str] = yaml.safe_load(token.content)
 
     return CodeReferenceMeta(
-        file_path=Path(reference_dict["file"]),
+        file_path=reference_dict["file"],
         title=reference_dict["title"],
         language=reference_dict["language"],
         source=(
@@ -118,7 +118,7 @@ def get_reference_values(token: Token) -> CodeReferenceMeta:
     )
 
 
-def download_files(url_list: list[str], output_dir: Path = Path("local_tmp"), sub_dir: bool = False) -> str:
+def download_files(url_list: list[str], output_dir: Path = Path("local_tmp"), sub_dir: bool = False) -> None:
 
     # TODO research how to download all files at once
     # checkout this example: https://www.quickprogrammingtips.com/python/how-to-download-multiple-files-concurrently-in-python.html
@@ -136,7 +136,7 @@ def download_files(url_list: list[str], output_dir: Path = Path("local_tmp"), su
         if file_response.status_code == requests.codes.ok:
             with open(file_path, 'wb') as file:
                 for data in file_response:
-                    file.write(data)        
+                    file.write(data)
 
 
 def format_source_code(ref_meta: CodeReferenceMeta, source_code: str) -> str:
@@ -160,7 +160,6 @@ def extract_code_refs(md_file_path: str) -> list[CodeReferenceMeta]:
 
     for token in tokens:
         if token.type == constants.code_block and token.info == constants.code_info:
-
             ref_meta: CodeReferenceMeta = get_reference_values(token=token)
             ref_list.append(ref_meta)
 

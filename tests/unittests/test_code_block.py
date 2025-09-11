@@ -84,7 +84,7 @@ class TestToken(NamedTuple):
     content: str
     markup: str = "```"
     info: str = "reference"
-    
+
 
 @pytest.fixture
 def test_token() -> TestToken:
@@ -97,14 +97,14 @@ def test_get_reference_values(test_token: TestToken) -> None:
     """
     Given a token including testing data
     When running get_reference_values
-    Than expect a CodeReferenceMetaData object containing the keys file, title, language 
+    Than expect a CodeReferenceMetaData object containing the keys file, title, language
     """
 
     expected_result: dict[str, str] = yaml.safe_load(test_token.content)
     result: code_block.CodeReferenceMeta = code_block.get_reference_values(token=test_token)
 
     assert isinstance(result, code_block.CodeReferenceMeta)
-    assert expected_result["file"] == result.file_path.as_posix()
+    assert expected_result["file"] == result.file_path
     assert expected_result["title"] == result.title
     assert expected_result["language"] == result.language
 

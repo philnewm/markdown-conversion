@@ -26,12 +26,10 @@ def download(input_files: str) -> None:
     input_file_list: list[str] = input_files.split(",")
     download_files(url_list=input_file_list, output_dir=Path(f"local_tmp"), sub_dir=True)
 
-    for input_file in input_files.split(","):
+    for input_file in input_file_list:
         path_handler = PathHandler(file_path=input_file, local_tmp="local_tmp", gh_url=True)
         code_references: list[CodeReferenceMeta] = extract_code_refs(md_file_path=f"{path_handler.local_tmp}/{path_handler.file_name}")
-
-        ref_paths: set[str] = set(str(code_ref.file_path) for code_ref in code_references)
-        ref_urls: list[str] = [f"{path_handler.repo_root}/{ref_path}" for ref_path in ref_paths]
+        ref_urls: list[str] = [str(code_ref.file_path) for code_ref in code_references]
         download_files(url_list=ref_urls, output_dir=Path(path_handler.local_resources))
 
 
@@ -63,7 +61,7 @@ def insert_code_references(
 @click.argument("output_dir", type=click.STRING)
 def clean_code_blocks(input_dir: str, output_dir: str) -> None:
     Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
+
     for filename in os.scandir(input_dir):
         result: str = clean_parameters(file_path=Path(filename))
         print(output_dir, filename.name)
