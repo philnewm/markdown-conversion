@@ -5,9 +5,7 @@ import yaml
 
 from markdown_it.token import Token
 from pathlib import Path
-from typing import NamedTuple
 from src import constants
-from multiprocessing.pool import ThreadPool
 
 from markdown_it import MarkdownIt
 
@@ -28,6 +26,8 @@ class CodeReferenceMeta():
     language: str
     source: str
     markup: str
+    start_line: int | None
+    end_line: int | None
 
 
 class SourceFile():
@@ -107,10 +107,18 @@ def get_reference_values(token: Token) -> CodeReferenceMeta:
     """
     reference_dict: dict[str, str] = yaml.safe_load(token.content)
 
+    start_raw: str | None = reference_dict.get("start")
+    end_raw: str | None = reference_dict.get("end")
+
+    start_value: int | None = int(start_raw) if start_raw is not None else None
+    end_value: int | None = int(end_raw) if end_raw is not None else None
+
     return CodeReferenceMeta(
         file_path=reference_dict["file"],
         title=reference_dict["title"],
         language=reference_dict["language"],
+        start_line=start_value,
+        end_line=end_value,
         source=(
                 f"{token.markup}{token.info}\n{token.content}{token.markup}"
             ),
@@ -193,8 +201,6 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data
     """
 
     unique_code_files: set[str] = set(code_ref.file_path for code_ref in code_refs)
-    print("\n".join(unique_code_files))
-    print(list(unique_code_files)[1].split("/")[-2])
     workflow_files: list[Path] = [Path(f"local_tmp/{data_dir}/resources/{file}") for file in unique_code_files if file.split("/")[-2] == constants.workflow_directory]
 
     step_to_code_maps: dict[str, str] = get_workflow_code(file_paths=workflow_files)
@@ -205,7 +211,7 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data
     for code_ref in code_refs:
         output_file: Path = path / code_ref.file_path.split("/")[-1]
 
-        if code_ref.file_path.split("/")[-2] == constants.workflow_directory:
+        if code_ref.file_path.split("/")[-2] == constants.workflow_directory and step_to_code_maps.get(code_ref.title, None):
             source_code: str = step_to_code_maps[code_ref.title]
             source_code_formatted: str = f"```{code_ref.language} linenums=\"1\" title=\"{code_ref.title}\"\n{source_code}```"
             code_map_list.append(
@@ -215,6 +221,19 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data
                 )
             )
             continue
+
+        if code_ref.start_line:
+            source_code_lines: list[str] = output_file.read_text().splitlines()
+            start_index: int = code_ref.start_line -1
+            end_index: int = code_ref.start_line + code_ref.end_line
+            source_code = "\n".join(source_code_lines[start_index:end_index])
+            print(f"Source Code: {source_code}")
+            source_code_formatted = f"```{code_ref.language} linenums=\"1\" title=\"{code_ref.title}\"\n{source_code}\n```"
+
+            code_map_list.append(
+                CodeMap(reference=code_ref.source, source_code=source_code_formatted)
+            )
+
 
         source_code = output_file.read_text()
         source_code_formatted = f"```{code_ref.language} linenums=\"1\" title=\"{code_ref.title}\"\n{source_code}```"
