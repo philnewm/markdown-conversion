@@ -28,7 +28,13 @@ def code_ref_meta_workflow(tmp_path: Path) -> code_block.CodeReferenceMeta:
     workflow_file: str = "test_workflow.yml"
     code_reference: Path = tmp_path / workflow_file
     return code_block.CodeReferenceMeta(
-        file_path=code_reference, title="First Task", language="bash", source="test_workflow.yml", markup="```"
+        file_path=str(code_reference),
+        title="First Task",
+        language="bash",
+        source="test_workflow.yml",
+        start_line=1,
+        end_line=10,
+        markup="```"
         )
 
 
