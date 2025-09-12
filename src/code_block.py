@@ -171,8 +171,9 @@ def get_workflow_code(file_paths: list[Path]) -> dict[str, str]:
     combined_maps: dict[str, str] = {}
 
     for file_path in file_paths:
+        shortened_path: Path = Path(*file_path.parts[:3]) / file_path.name
         step_to_code_map: dict[str, str] = map_step_name_to_code(
-            gh_workflow=yaml.safe_load(Path(file_path).read_text())
+            gh_workflow=yaml.safe_load(shortened_path.read_text())
         )
 
         combined_maps.update(step_to_code_map)
@@ -192,7 +193,9 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data
     """
 
     unique_code_files: set[str] = set(code_ref.file_path for code_ref in code_refs)
-    workflow_files: list[Path] = [Path(f"local_tmp/{data_dir}/resources/{file}") for file in unique_code_files if file.split("/")[0].split("/")[1] == constants.workflow_directory]
+    print("\n".join(unique_code_files))
+    print(list(unique_code_files)[1].split("/")[-2])
+    workflow_files: list[Path] = [Path(f"local_tmp/{data_dir}/resources/{file}") for file in unique_code_files if file.split("/")[-2] == constants.workflow_directory]
 
     step_to_code_maps: dict[str, str] = get_workflow_code(file_paths=workflow_files)
     code_map_list: list[CodeMap] = []
@@ -200,9 +203,9 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data
     # ToDo Implement blog dataclass to hold information like title, tags and so on
 
     for code_ref in code_refs:
-        output_file: Path = path / code_ref.file_path
+        output_file: Path = path / code_ref.file_path.split("/")[-1]
 
-        if code_ref.file_path.split("/")[0].split("/")[1] == constants.workflow_directory:
+        if code_ref.file_path.split("/")[-2] == constants.workflow_directory:
             source_code: str = step_to_code_maps[code_ref.title]
             source_code_formatted: str = f"```{code_ref.language} linenums=\"1\" title=\"{code_ref.title}\"\n{source_code}```"
             code_map_list.append(
