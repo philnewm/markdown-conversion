@@ -191,8 +191,8 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data
         list[CodeMap]: List of code mappings
     """
 
-    unique_code_files: set[Path] = set(code_ref.file_path for code_ref in code_refs)
-    workflow_files: list[Path] = [Path(f"local_tmp/{data_dir}/resources/{file.name}") for file in unique_code_files if file.parent.name == constants.workflow_directory]
+    unique_code_files: set[str] = set(code_ref.file_path for code_ref in code_refs)
+    workflow_files: list[Path] = [Path(f"local_tmp/{data_dir}/resources/{file}") for file in unique_code_files if file.split("/")[0].split("/")[1] == constants.workflow_directory]
 
     step_to_code_maps: dict[str, str] = get_workflow_code(file_paths=workflow_files)
     code_map_list: list[CodeMap] = []
@@ -200,9 +200,9 @@ def map_reference_to_source(code_refs: list[CodeReferenceMeta], path: Path, data
     # ToDo Implement blog dataclass to hold information like title, tags and so on
 
     for code_ref in code_refs:
-        output_file: Path = path / code_ref.file_path.name
+        output_file: Path = path / code_ref.file_path
 
-        if code_ref.file_path.parent.name == constants.workflow_directory:
+        if code_ref.file_path.split("/")[0].split("/")[1] == constants.workflow_directory:
             source_code: str = step_to_code_maps[code_ref.title]
             source_code_formatted: str = f"```{code_ref.language} linenums=\"1\" title=\"{code_ref.title}\"\n{source_code}```"
             code_map_list.append(
